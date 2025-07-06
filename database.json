@@ -1,0 +1,19 @@
+{
+  "products": [
+    {
+      "name": "red shoes",
+      "keywords": ["red shoes", "shoes", "footwear"],
+      "url": "https://dummy.com/products/red-shoes"
+    },
+    {
+      "name": "blue jeans",
+      "keywords": ["blue jeans", "jeans", "denim"],
+      "url": "https://dummy.com/products/blue-jeans"
+    },
+    {
+      "name": "black t-shirt",
+      "keywords": ["black t-shirt", "t-shirt", "shirt"],
+      "url": "https://dummy.com/products/black-tshirt"
+    }
+  ]
+}
