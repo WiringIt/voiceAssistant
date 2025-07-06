@@ -13,7 +13,7 @@ from streamlit_webrtc import webrtc_streamer, AudioProcessorBase, WebRtcMode
 with open("database.json", "r") as f:
     products = json.load(f)["products"]
 
-# Build keyword map for fuzzy match
+# Build fuzzy keyword map
 keyword_map = {k: p for p in products for k in p["keywords"]}
 
 def find_product_fuzzy(query):
@@ -23,14 +23,16 @@ def find_product_fuzzy(query):
         return keyword_map[matches[0]]
     return None
 
-# Audio processing class
+# Voice Processor with proper mono + normalization
 class VoiceProcessor(AudioProcessorBase):
     def __init__(self):
         self.frames = []
 
     def recv(self, frame: av.AudioFrame) -> av.AudioFrame:
-        audio = frame.to_ndarray()[0]  # Mono channel
-        audio_int16 = (audio * 32767).astype(np.int16)
+        audio = frame.to_ndarray()
+        if audio.ndim > 1:
+            audio = audio.mean(axis=0)  # stereo → mono
+        audio_int16 = (audio * 32767).astype(np.int16)  # normalize float32 → int16
         self.frames.append(audio_int16)
         return frame
 
@@ -39,12 +41,12 @@ class VoiceProcessor(AudioProcessorBase):
             return None
         return np.concatenate(self.frames)
 
-# UI Setup
-st.set_page_config(page_title="Voice Inventory Assistant", page_icon="🛍️")
+# Streamlit UI
+st.set_page_config(page_title="Voice Assistant", page_icon="🗣️")
 st.title("🛍️ Voice Inventory Assistant")
 st.write("🎙️ Click 'Start Recording', speak a product name, then click 'Process Voice'.")
 
-# WebRTC Audio Recorder
+# Start recording
 ctx = webrtc_streamer(
     key="voice-input",
     mode=WebRtcMode.SENDRECV,
@@ -52,22 +54,24 @@ ctx = webrtc_streamer(
     media_stream_constraints={"video": False, "audio": True},
 )
 
-# Handle voice-to-product flow
+# After voice is captured
 if ctx.audio_processor:
     if st.button("🔍 Process Voice"):
         audio_data = ctx.audio_processor.get_audio()
+
         if audio_data is None:
-            st.error("No audio received.")
+            st.error("No audio received. Please try again.")
         else:
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmpfile:
                 with wave.open(tmpfile.name, 'wb') as wf:
                     wf.setnchannels(1)
-                    wf.setsampwidth(2)
-                    wf.setframerate(16000)
+                    wf.setsampwidth(2)        # 16-bit audio
+                    wf.setframerate(16000)    # 16kHz sample rate
                     wf.writeframes(audio_data.tobytes())
 
-                st.audio(tmpfile.name, format='audio/wav')
+                st.audio(tmpfile.name, format='audio/wav')  # Debug playback
 
+                # Speech recognition
                 recognizer = sr.Recognizer()
                 with sr.AudioFile(tmpfile.name) as source:
                     audio = recognizer.record(source)
@@ -76,8 +80,8 @@ if ctx.audio_processor:
                     query = recognizer.recognize_google(audio)
                     st.success(f"You said: **{query}**")
 
-                    # Optional fallback to editable input
-                    edited_query = st.text_input("Edit if needed:", value=query)
+                    # Optional fallback
+                    edited_query = st.text_input("Edit if misunderstood:", value=query)
 
                     product = find_product_fuzzy(edited_query)
                     if product:
@@ -88,6 +92,6 @@ if ctx.audio_processor:
                         st.warning("❌ No matching product found.")
 
                 except sr.UnknownValueError:
-                    st.error("Couldn't understand your voice.")
+                    st.error("Could not understand your voice.")
                 except sr.RequestError as e:
                     st.error(f"Google STT error: {e}")
