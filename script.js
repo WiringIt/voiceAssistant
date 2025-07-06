@@ -1,4 +1,5 @@
 const startBtn = document.getElementById("start-btn");
+const micStatus = document.getElementById("mic-status");
 const transcriptEl = document.getElementById("transcript");
 const resultEl = document.getElementById("result");
 
@@ -8,6 +9,20 @@ let products = [];
 fetch("products.json")
   .then(res => res.json())
   .then(data => products = data.products);
+
+// Check for mic access first
+navigator.mediaDevices.getUserMedia({ audio: true })
+  .then(() => {
+    micStatus.textContent = "✅ Microphone access granted!";
+    startBtn.disabled = false;
+  })
+  .catch((err) => {
+    micStatus.innerHTML = `❌ Microphone not available.<br>
+      Please allow mic access in your browser settings. <br>
+      Use <strong>Chrome</strong> on desktop or Android.`;
+    startBtn.disabled = true;
+    console.error("Mic access error:", err);
+  });
 
 // Match input text to product keywords
 function findProduct(query) {
@@ -24,7 +39,13 @@ function findProduct(query) {
 
 // Handle voice input
 startBtn.addEventListener("click", () => {
-  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    resultEl.textContent = "❌ Your browser doesn't support voice input.";
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
   recognition.lang = "en-US";
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
@@ -38,7 +59,7 @@ startBtn.addEventListener("click", () => {
 
     const product = findProduct(transcript);
     if (product) {
-      resultEl.innerHTML = `✅ Found: ${product.name}. <br/>Redirecting...`;
+      resultEl.innerHTML = `✅ Found: ${product.name}.<br/>Redirecting...`;
       setTimeout(() => {
         window.open(product.url, "_blank");
       }, 2000);
@@ -47,8 +68,8 @@ startBtn.addEventListener("click", () => {
     }
   };
 
-  recognition.onerror = () => {
-    transcriptEl.textContent = "⚠️ Voice recognition error. Try again.";
+  recognition.onerror = (e) => {
+    resultEl.textContent = `⚠️ Voice recognition error: ${e.error}. Try again.`;
   };
 
   recognition.start();
