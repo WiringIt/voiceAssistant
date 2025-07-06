@@ -2,29 +2,33 @@ import streamlit as st
 import json
 import tempfile
 import numpy as np
-import av
 import wave
-import webbrowser
 import speech_recognition as sr
 from streamlit_webrtc import webrtc_streamer, AudioProcessorBase, WebRtcMode
+import av
 
-# Load product database
+# Load the dummy product database
 with open("database.json", "r") as f:
     products = json.load(f)["products"]
 
+# Product matching function
 def find_product(query):
     query = query.lower()
     for product in products:
-        if any(keyword in query for keyword in product["keywords"]):
-            return product
+        for keyword in product["keywords"]:
+            if keyword in query:
+                return product
     return None
 
+# Audio processor to collect frames
 class VoiceProcessor(AudioProcessorBase):
     def __init__(self) -> None:
         self.frames = []
 
     def recv(self, frame: av.AudioFrame) -> av.AudioFrame:
-        self.frames.append(frame.to_ndarray().flatten())
+        audio = frame.to_ndarray()
+        mono_audio = audio.mean(axis=0).astype(np.int16)
+        self.frames.append(mono_audio)
         return frame
 
     def get_audio(self):
@@ -32,48 +36,46 @@ class VoiceProcessor(AudioProcessorBase):
             return None
         return np.concatenate(self.frames)
 
-st.set_page_config(page_title="🛍️ Voice Assistant", page_icon="🗣️")
+# Streamlit UI
+st.set_page_config(page_title="Voice Assistant", page_icon="🗣️")
 st.title("🗣️ Voice Inventory Assistant")
+st.write("Click 'Start Recording', speak your product name, then click 'Process'.")
 
+# Setup voice capture
 ctx = webrtc_streamer(
-    key="speech",
+    key="speech-to-text",
     mode=WebRtcMode.SENDRECV,
     audio_processor_factory=VoiceProcessor,
     media_stream_constraints={"video": False, "audio": True},
 )
 
+# Process voice and redirect
 if ctx.audio_processor:
-    st.info("🎙️ Speak your product name and then click below.")
-    if st.button("🔍 Process and Redirect"):
-        st.info("Processing voice...")
-
+    if st.button("🔍 Process Voice"):
         raw_audio = ctx.audio_processor.get_audio()
-
         if raw_audio is None:
-            st.error("No audio captured.")
+            st.error("No audio captured. Try again.")
         else:
-            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
-                with wave.open(f.name, 'wb') as wf:
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmpfile:
+                with wave.open(tmpfile.name, "wb") as wf:
                     wf.setnchannels(1)
                     wf.setsampwidth(2)
                     wf.setframerate(16000)
-                    wf.writeframes(raw_audio.astype(np.int16).tobytes())
+                    wf.writeframes(raw_audio.tobytes())
 
                 recognizer = sr.Recognizer()
-                with sr.AudioFile(f.name) as source:
-                    audio = recognizer.record(source)
-
-                try:
-                    text = recognizer.recognize_google(audio)
-                    st.success(f"You said: {text}")
-                    matched_product = find_product(text)
-                    if matched_product:
-                        st.success(f"Product matched: {matched_product['name']}")
-                        st.markdown(f"[Click here to go to the product page 🚀]({matched_product['url']})")
-                        webbrowser.open_new_tab(matched_product["url"])
-                    else:
-                        st.warning("Sorry, no matching product found.")
-                except sr.UnknownValueError:
-                    st.error("Could not understand the audio.")
-                except sr.RequestError as e:
-                    st.error(f"Could not request results from Google Speech API: {e}")
+                with sr.AudioFile(tmpfile.name) as source:
+                    audio_data = recognizer.record(source)
+                    try:
+                        query = recognizer.recognize_google(audio_data)
+                        st.success(f"You said: \"{query}\"")
+                        product = find_product(query)
+                        if product:
+                            st.success(f"Found: {product['name']}")
+                            st.markdown(f"[Go to product 🚀]({product['url']})")
+                        else:
+                            st.warning("No matching product found.")
+                    except sr.UnknownValueError:
+                        st.error("Couldn't understand the voice.")
+                    except sr.RequestError as e:
+                        st.error(f"Google STT error: {e}")
