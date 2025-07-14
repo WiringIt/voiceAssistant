@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "npx http-server . -p 8000 -c-1",
-    "start": "npx http-server . -p 8000 -c-1"
+    "start": "npx http-server . -p 8000 -c-1",
+    "build": "echo 'Static files are ready for deployment' && mkdir -p dist && cp -r * dist/ 2>/dev/null || true"
   },
   "devDependencies": {},
   "dependencies": {}
