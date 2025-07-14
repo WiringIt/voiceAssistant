@@ -5,16 +5,160 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Voice Inventory Assistant</title>
   <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <h1>🛍️ Voice Inventory Assistant</h1>
+  <div class="app">
+    <!-- Main Voice Assistant Page -->
+    <div id="main-page" class="page active">
+      <div class="container">
+        <div class="header">
+          <div class="logo">
+            <div class="logo-icon">🛍️</div>
+            <h1>Voice Assistant</h1>
+          </div>
+          <p class="subtitle">Find products instantly with your voice</p>
+        </div>
 
-    <button id="start-btn" disabled>🎙️ Start Voice Input</button>
+        <div class="voice-section">
+          <div class="record-button-container">
+            <button id="record-btn" class="record-button">
+              <div class="record-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z" fill="currentColor"/>
+                  <path d="M19 10V12C19 16.42 15.42 20 11 20H13C17.42 20 21 16.42 21 12V10H19Z" fill="currentColor"/>
+                  <path d="M7 12V10H5V12C5 16.42 8.58 20 13 20H11C6.58 20 3 16.42 3 12Z" fill="currentColor"/>
+                  <path d="M12 22V20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M8 22H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <span class="record-text">Start Recording</span>
+            </button>
+          </div>
+          
+          <div class="status-indicator">
+            <div class="status-dot"></div>
+            <span>Ready to listen</span>
+          </div>
+        </div>
 
-    <p id="mic-status">🔄 Testing microphone access...</p>
-    <p id="transcript">Say a product name...</p>
-    <p id="result"></p>
+        <div class="features">
+          <div class="feature">
+            <div class="feature-icon">🎯</div>
+            <h3>Instant Search</h3>
+            <p>Find products quickly with natural voice commands</p>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">🔊</div>
+            <h3>Voice Recognition</h3>
+            <p>Advanced speech processing for accurate results</p>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">⚡</div>
+            <h3>Fast Results</h3>
+            <p>Get product recommendations in seconds</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Display Page -->
+    <div id="product-page" class="page">
+      <div class="product-container">
+        <button id="back-btn" class="back-button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Back
+        </button>
+
+        <div class="product-content">
+          <div class="product-image-section">
+            <div class="product-image">
+              <img src="https://images.pexels.com/photos/1021693/pexels-photo-1021693.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Elegant Red Dress" />
+            </div>
+            <div class="image-thumbnails">
+              <div class="thumbnail active">
+                <img src="https://images.pexels.com/photos/1021693/pexels-photo-1021693.jpeg?auto=compress&cs=tinysrgb&w=200" alt="Red Dress View 1" />
+              </div>
+              <div class="thumbnail">
+                <img src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg?auto=compress&cs=tinysrgb&w=200" alt="Red Dress View 2" />
+              </div>
+              <div class="thumbnail">
+                <img src="https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=200" alt="Red Dress View 3" />
+              </div>
+            </div>
+          </div>
+
+          <div class="product-details">
+            <div class="product-header">
+              <h1>Elegant Red Evening Dress</h1>
+              <div class="rating">
+                <div class="stars">
+                  <span class="star filled">★</span>
+                  <span class="star filled">★</span>
+                  <span class="star filled">★</span>
+                  <span class="star filled">★</span>
+                  <span class="star">★</span>
+                </div>
+                <span class="rating-text">(4.2) • 127 reviews</span>
+              </div>
+            </div>
+
+            <div class="price-section">
+              <span class="current-price">$189.99</span>
+              <span class="original-price">$249.99</span>
+              <span class="discount">24% OFF</span>
+            </div>
+
+            <div class="product-options">
+              <div class="option-group">
+                <label>Size</label>
+                <div class="size-options">
+                  <button class="size-btn">XS</button>
+                  <button class="size-btn">S</button>
+                  <button class="size-btn active">M</button>
+                  <button class="size-btn">L</button>
+                  <button class="size-btn">XL</button>
+                </div>
+              </div>
+
+              <div class="option-group">
+                <label>Color</label>
+                <div class="color-options">
+                  <button class="color-btn active" style="background-color: #dc2626;"></button>
+                  <button class="color-btn" style="background-color: #1f2937;"></button>
+                  <button class="color-btn" style="background-color: #059669;"></button>
+                  <button class="color-btn" style="background-color: #7c3aed;"></button>
+                </div>
+              </div>
+            </div>
+
+            <div class="product-description">
+              <h3>Description</h3>
+              <p>This stunning red evening dress features a sophisticated silhouette perfect for special occasions. Crafted from premium materials with attention to detail, it offers both comfort and elegance.</p>
+              
+              <ul class="features-list">
+                <li>Premium fabric blend</li>
+                <li>Elegant fit and finish</li>
+                <li>Perfect for evening events</li>
+                <li>Available in multiple sizes</li>
+              </ul>
+            </div>
+
+            <div class="action-buttons">
+              <button class="add-to-cart-btn">Add to Cart</button>
+              <button class="buy-now-btn">Buy Now</button>
+              <button class="wishlist-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20.84 4.61C20.3292 4.099 19.7228 3.69364 19.0554 3.41708C18.3879 3.14052 17.6725 2.99817 16.95 2.99817C16.2275 2.99817 15.5121 3.14052 14.8446 3.41708C14.1772 3.69364 13.5708 4.099 13.06 4.61L12 5.67L10.94 4.61C9.9083 3.5783 8.50903 2.9987 7.05 2.9987C5.59096 2.9987 4.19169 3.5783 3.16 4.61C2.1283 5.6417 1.5487 7.04097 1.5487 8.5C1.5487 9.95903 2.1283 11.3583 3.16 12.39L12 21.23L20.84 12.39C21.351 11.8792 21.7563 11.2728 22.0329 10.6053C22.3095 9.93789 22.4518 9.22248 22.4518 8.5C22.4518 7.77752 22.3095 7.06211 22.0329 6.39467C21.7563 5.72723 21.351 5.1208 20.84 4.61V4.61Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="script.js"></script>
