@@ -1,23 +1,35 @@
-# 🛍️ Streamlit Voice Assistant
+# 🎙️ Voice Assistant
 
-## 🎯 Goal
-Help users find inventory by speaking their product query. Instantly redirect them to relevant product links.
+This project is a Python-based voice assistant that uses **OpenAI's Whisper** for speech-to-text transcription. It captures audio input from the user, processes it using custom logic or NLP, and responds with speech using a Text-to-Speech engine.
 
-## 🧠 Features
-- Voice recognition using `speech_recognition`
-- Clean UI via Streamlit
-- Dummy product database (JSON)
-- Product matching via keyword search
-- Instant redirection to product page
+---
 
-## 🛠️ Tech Stack
-- Python
-- Streamlit
-- SpeechRecognition
-- JSON
+## ✨ Features
 
-## ▶️ How to Run
+- 🎧 Records voice from microphone
+- 🧠 Uses OpenAI Whisper for accurate speech-to-text transcription
+- 🗣️ Converts response text back to speech
+- 🔌 Modular design — plug in your own logic/NLP/TTS systems
+- 🛠️ Easily extendable for IoT, personal desktop assistant, or chatbot backends
+
+---
+
+## 📦 Tech Stack
+
+| Component | Technology |
+|----------|------------|
+| Audio Capture | `PyAudio` / `sounddevice` |
+| Speech-to-Text (ASR) | [`OpenAI Whisper`](https://github.com/openai/whisper) |
+| Command Processing | Custom logic (can be extended with NLP tools like spaCy, Rasa, etc.) |
+| Text-to-Speech | `gTTS` / `pyttsx3` / Coqui / Amazon Polly |
+| Language | Python 3 |
+
+---
+
+## 🚀 Setup Instructions
+
+### 1. Clone the repo
 
 ```bash
-pip install -r requirements.txt
-streamlit run app.py
+git clone https://github.com/WiringIt/voiceAssistant.git
+cd voiceAssistant
